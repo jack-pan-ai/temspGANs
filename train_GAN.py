@@ -165,7 +165,7 @@ def main_worker(gpu, args):
 
             # visualization for generated data & wandb for generated data
             visualization(ori_data=train_set[:args.eval_num],
-                          generated_data=sample_imgs, analysis='pca',
+                          generated_data=sample_imgs[:args.eval_num], analysis='pca',
                           save_name=args.exp_name, epoch=epoch, args=args)
             visu_pca = plt.imread(
                 os.path.join(args.path_helper['log_path_img_pca'], f'{args.exp_name}_epoch_{epoch + 1}.png'))
@@ -190,8 +190,10 @@ def main_worker(gpu, args):
             # wandb.log({'Real Samples': wandb.plot.line(table_real, "x", "y", title = 'Real Samples')})
             # sigma estimated
             # sample_imgs [batch_size, channels = 1, length]
-            sigma_ested = anal_solution(sample_imgs.squeeze(1), train_set.mean)
-            wandb.log({'Estimated sigma': sigma_ested})
+            sigma_true = anal_solution(train_set[:args.eval_num].squeeze(1), train_set.mean)
+            sigma_gen = anal_solution(sample_imgs.squeeze(1), train_set.mean)
+            wandb.log({'Generated sigma': sigma_gen,
+                       'True sigma': sigma_true})
 
             save_checkpoint({
                 'epoch': epoch + 1,

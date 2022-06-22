@@ -16,5 +16,6 @@ os.system(f"CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python ../train_GAN.py \
 --batch_size 128 \
 --epochs 1500 \
 --eval_epochs 5 \
+--eval_num 800 \
 --print_freq 50 \
 --exp_name GRF-exp")
