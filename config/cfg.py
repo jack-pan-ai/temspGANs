@@ -21,6 +21,8 @@ def parse_args():
                         help='GPU id to use.')
     parser.add_argument('--num_workers', type=int, default=16,
                         help='number of cpu threads to use during batch generation')
+    parser.add_argument('--num_lines', type=int, default=2,
+                        help='number of lines in the visulization')
 
     # training configuration
     parser.add_argument( '--epochs', type=int, default=777,
@@ -89,7 +91,7 @@ def parse_args():
                         help='The init type')
 
     # Simulation setting for Gaussian Random Field and Vector AR(1) model
-    parser.add_argument('--transform', type=bool, default=True,
+    parser.add_argument('--transform', type=bool, default=False,
                         help='Transformation on Generated Multivariate Gaussian Distribution')
     parser.add_argument('--truncate', type=bool, default=False,
                         help='Truncate on Generated Multivariate Gaussian Distribution')

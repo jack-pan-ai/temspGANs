@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="d0d0c57a-1f12-447f-a03d-bfb4d03a3ba5" name="panq@rooster-temspGANs">
+        <fileTransfer accessType="SFTP" host="10.68.170.148" port="22" sshConfigId="ce7fad74-f422-4560-a3df-1dfe919fbe1c" sshConfig="panq@rooster" authAgent="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+      <webServer id="f4f8bc2c-d94d-4218-b1c8-2209059ddb1d" name="pan@peacock-tempGANs">
+        <fileTransfer accessType="SFTP" host="10.68.170.170" port="22" sshConfigId="e8630fc6-29d4-44fd-9573-e7d0eae11b31" sshConfig="panq@peacock" authAgent="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

@@ -8,7 +8,6 @@ from models.GANModels import *
 from utils.functions import train, LinearLrDecay
 from utils.utils import set_log_dir, save_checkpoint, create_logger
 from utils.visualizationMetrics import visualization
-from utils.statEstimate import *
 
 import torch
 import torch.utils.data.distributed
@@ -20,8 +19,6 @@ from torch.utils.tensorboard import SummaryWriter
 import random
 import matplotlib.pyplot as plt
 from torchinfo import summary
-from einops import rearrange
-
 
 # synthesis data
 import warnings
@@ -73,11 +70,11 @@ def main_worker(gpu, args):
     #------------------------   dataset loading ------------------------#
     # -------------------------------------------------------------------#
     # [batch_size, channles, seq-len]
-    train_set = MultiNormaldataset(latent_dim=args.latent_dim, size=10000,  mode='train',
+    train_set = MultiNormaldataset(size=10000,  mode='train',
                                        channels = args.simu_channels,  simu_dim=args.simu_dim,
-                                       transform=args.transform, truncate=args.truncate, appendix='new')
+                                       transform=args.transform, truncate=args.truncate)
     train_loader = data.DataLoader(train_set, batch_size=args.batch_size, num_workers=args.num_workers, shuffle=True)
-    test_set = MultiNormaldataset(latent_dim=args.latent_dim, size=args.eval_num, mode='test',
+    test_set = MultiNormaldataset(size=args.eval_num, mode='test',
                                       channels = args.simu_channels, transform=args.transform,
                                       truncate=args.truncate, simu_dim=args.simu_dim)
     # test_loader = data.DataLoader(test_set, batch_size=args.batch_size, num_workers=args.num_workers, shuffle=True)
@@ -147,7 +144,7 @@ def main_worker(gpu, args):
     # project_name = 'loss: ' + args.loss + ', n_gen: ' + str(args.n_gen) + ', n_dis: '+ str(args.n_dis)
     project_name = 'n_gen: ' + str(args.n_gen) + ', n_dis: ' + str(args.n_dis) + ', ' + \
                        str(args.simu_channels) + '*' + str(args.simu_dim)
-    wandb.init(project=args.dataset + args.exp_name, entity="qilong77", name = project_name)
+    wandb.init(project= args.exp_name, entity="qilong77", name = project_name)
     wandb.config = {
         "epochs": int(args.epochs) - int(start_epoch),
         "batch_size": args.batch_size
@@ -168,7 +165,7 @@ def main_worker(gpu, args):
 
             # visualization for generated data & wandb for generated data
             visualization(ori_data=train_set[:args.eval_num],
-                          generated_data=sample_imgs.to('cpu'), analysis='pca',
+                          generated_data=sample_imgs, analysis='pca',
                           save_name=args.exp_name, epoch=epoch, args=args)
             visu_pca = plt.imread(
                 os.path.join(args.path_helper['log_path_img_pca'], f'{args.exp_name}_epoch_{epoch + 1}.png'))
@@ -176,21 +173,28 @@ def main_worker(gpu, args):
             wandb.log({'PCA Visualization': img_visu_pca})
 
             # add the GRF plot
-            wandb.log({'Generated Samples': wandb.plot.line_series(
-                xs = np.arange(1, sample_imgs.shape[0] + 1),
-                ys = sample_imgs[:args.eval_num//5].unsqueeze(1),
-                title='Generated Samples'
-            )})
-            wandb.log({'Real Samples': wandb.plot.line_series(
-                xs=np.arange(1, sample_imgs.shape[0] + 1),
-                ys=test_set[:args.eval_num // 5].unsqueeze(1),
-                title='Generated Samples'
-            )})
+            visu_rline = plt.imread(
+                os.path.join(args.path_helper['log_path_img_pca'], f'{args.exp_name}_epoch_{epoch + 1}_rline.png'))
+            img_visu_rline = wandb.Image(visu_rline, caption="Epoch: " + str(epoch))
+            wandb.log({'Real sampless': img_visu_rline})
+            visu_gline = plt.imread(
+                os.path.join(args.path_helper['log_path_img_pca'], f'{args.exp_name}_epoch_{epoch + 1}_gline.png'))
+            img_visu_gline = wandb.Image(visu_gline, caption="Epoch: " + str(epoch))
+            wandb.log({'Generated sampless': img_visu_gline})
+            # x = np.arange(1, args.simu_dim+1)
+            # data_g = [[x, y] for y in sample_imgs[:args.eval_num//50, 0, :]]
+            # table_g = wandb.Table(data=data_g, columns=["x", "y"])
+            # data_real = [[x, y] for y in test_set[:args.eval_num //50, 0, :]]
+            # table_real = wandb.Table(data=data_real, columns=["x", "y"])
+            # wandb.log({'Generated Samples': wandb.plot.line(table_g, "x", "y", title = 'Generated Samples')})
+            # wandb.log({'Real Samples': wandb.plot.line(table_real, "x", "y", title = 'Real Samples')})
+            # sigma estimated
+            # sample_imgs [batch_size, channels = 1, length]
+            sigma_ested = anal_solution(sample_imgs.squeeze(1), train_set.mean)
+            wandb.log({'Estimated sigma': sigma_ested})
 
             save_checkpoint({
                 'epoch': epoch + 1,
-                'gen_model': args.gen_model,
-                'dis_model': args.dis_model,
                 'gen_state_dict': gen_net.state_dict(),
                 'dis_state_dict': dis_net.state_dict(),
                 'gen_optimizer': gen_optimizer.state_dict(),

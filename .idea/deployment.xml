@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" autoUpload="Always" serverName="panq@peacock" remoteFilesAllowedToDisappearOnAutoupload="false">
+    <serverData>
+      <paths name="pan@peacock-tempGANs">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/panq/python_project/temspGANs" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="panq@peacock">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/panq/python_project/temspGANs" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="panq@rooster-temspGANs">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/panq/python_project/temspGANs" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+    <option name="myAutoUpload" value="ALWAYS" />
+  </component>
+</project>

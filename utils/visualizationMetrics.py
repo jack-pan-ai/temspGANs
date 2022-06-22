@@ -22,7 +22,6 @@ import io
 import torch
 import os
 
-   
 def visualization (ori_data, generated_data, analysis, save_name, epoch, args):
     """Using PCA or tSNE for generated and original data visualization.
 
@@ -114,4 +113,22 @@ def visualization (ori_data, generated_data, analysis, save_name, epoch, args):
 #         plt.show()
 
     plt.savefig(os.path.join(args.path_helper['log_path_img_pca'],f'{save_name}_epoch_{epoch+1}.png'), format="png")
+
+    # line plot
+    fig = plt.figure()
+    for i in range(args.num_lines):
+        plt.plot(ori_data[i, 0, :])
+    plt.xlabel('Random Fields')
+    plt.ylabel('Values')
+    plt.title('Real Samples')
+    plt.savefig(os.path.join(args.path_helper['log_path_img_pca'], f'{save_name}_epoch_{epoch + 1}_rline.png'), format="png")
+
+    fig = plt.figure()
+    for i in range(args.num_lines):
+        plt.plot(generated_data[i, 0, :])
+    plt.xlabel('Random Fields')
+    plt.ylabel('Values')
+    plt.title('Generated Samples')
+    plt.savefig(os.path.join(args.path_helper['log_path_img_pca'], f'{save_name}_epoch_{epoch + 1}_gline.png'),
+                format="png")
 #    plt.show()

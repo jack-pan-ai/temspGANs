@@ -5,7 +5,7 @@ import os
 os.system(f"CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python ../train_GAN.py \
 --gpu 0 \
 --latent_dim 16 \
---simu_dim 64 \
+--simu_dim 150 \
 --simu_channels 1 \
 --g_lr 0.0001 \
 --d_lr 0.0003 \
@@ -13,8 +13,8 @@ os.system(f"CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python ../train_GAN.py \
 --n_dis 1 \
 --n_gen 1 \
 --patch_size 15 \
---batch_size 256 \
+--batch_size 128 \
 --epochs 1500 \
 --eval_epochs 5 \
 --print_freq 50 \
---exp_name GRF")
+--exp_name GRF-exp")
