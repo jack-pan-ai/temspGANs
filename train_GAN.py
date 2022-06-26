@@ -7,7 +7,7 @@ from dataset.MultiNormal.multi_normal_generate import *
 from models.GANModels import *
 from utils.functions import train, LinearLrDecay
 from utils.utils import set_log_dir, save_checkpoint, create_logger
-from utils.visualizationMetrics import visualization
+from utils.visualizationMetrics import *
 
 import torch
 import torch.utils.data.distributed
@@ -26,7 +26,6 @@ import wandb
 
 # torch.backends.cudnn.enabled = True
 # torch.backends.cudnn.benchmark = True
-
 
 
 def main():
@@ -49,22 +48,6 @@ def main_worker(gpu, args):
     args.gpu = gpu
     if args.gpu is not None:
         print("Use GPU: {} for training".format(args.gpu))
-
-    # weight initialization
-    def weights_init(m):
-        classname = m.__class__.__name__
-        if classname.find('Conv2d') != -1:
-            if args.init_type == 'normal':
-                nn.init.normal_(m.weight.data, 0.0, 0.02)
-            elif args.init_type == 'orth':
-                nn.init.orthogonal_(m.weight.data)
-            elif args.init_type == 'xavier_uniform':
-                nn.init.xavier_uniform(m.weight.data, 1.)
-            else:
-                raise NotImplementedError('{} unknown inital type'.format(args.init_type))
-        elif classname.find('BatchNorm2d') != -1:
-            nn.init.normal_(m.weight.data, 1.0, 0.02)
-            nn.init.constant_(m.bias.data, 0.0)
 
     #-------------------------------------------------------------------#
     #------------------------   dataset loading ------------------------#
@@ -172,7 +155,7 @@ def main_worker(gpu, args):
             img_visu_pca = wandb.Image(visu_pca, caption="Epoch: " + str(epoch))
             wandb.log({'PCA Visualization': img_visu_pca})
 
-            # add the GRF plot
+            # add the GRF plot (visualization process included in the previous function: visualization)
             visu_rline = plt.imread(
                 os.path.join(args.path_helper['log_path_img_pca'], f'{args.exp_name}_epoch_{epoch + 1}_rline.png'))
             img_visu_rline = wandb.Image(visu_rline, caption="Epoch: " + str(epoch))
@@ -181,19 +164,21 @@ def main_worker(gpu, args):
                 os.path.join(args.path_helper['log_path_img_pca'], f'{args.exp_name}_epoch_{epoch + 1}_gline.png'))
             img_visu_gline = wandb.Image(visu_gline, caption="Epoch: " + str(epoch))
             wandb.log({'Generated sampless': img_visu_gline})
-            # x = np.arange(1, args.simu_dim+1)
-            # data_g = [[x, y] for y in sample_imgs[:args.eval_num//50, 0, :]]
-            # table_g = wandb.Table(data=data_g, columns=["x", "y"])
-            # data_real = [[x, y] for y in test_set[:args.eval_num //50, 0, :]]
-            # table_real = wandb.Table(data=data_real, columns=["x", "y"])
-            # wandb.log({'Generated Samples': wandb.plot.line(table_g, "x", "y", title = 'Generated Samples')})
-            # wandb.log({'Real Samples': wandb.plot.line(table_real, "x", "y", title = 'Real Samples')})
-            # sigma estimated
-            # sample_imgs [batch_size, channels = 1, length]
+
+            # sigma estimation
             sigma_true = anal_solution(train_set[:args.eval_num].squeeze(1), train_set.mean)
             sigma_gen = anal_solution(sample_imgs.squeeze(1), train_set.mean)
             wandb.log({'Generated sigma': sigma_gen,
                        'True sigma': sigma_true})
+
+            # add acf for the comparsion of generated data and real data
+            acf_visulization(ori_data=train_set[:args.eval_num],
+                          generated_data=sample_imgs[:args.eval_num],
+                          save_name=args.exp_name, epoch=epoch, args=args)
+            visu_acf = plt.imread(
+                os.path.join(args.path_helper['log_path_img_pca'], f'{args.exp_name}_epoch_{epoch + 1}_acfplot.png'))
+            img_visu_acf = wandb.Image(visu_acf, caption="Epoch: " + str(epoch))
+            wandb.log({'Autocorrelation function': img_visu_acf})
 
             save_checkpoint({
                 'epoch': epoch + 1,

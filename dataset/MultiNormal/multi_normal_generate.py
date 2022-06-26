@@ -4,7 +4,7 @@ import pickle
 import os
 from torch.utils.data import Dataset
 
-def cov_function(length_whole, alpha=1):
+def cov_function(length_whole, alpha=0.1):
     # used to create corvariance matrix control by 2 parameters
     cor = np.ones([length_whole, length_whole])
     for i in range(length_whole):
@@ -34,18 +34,8 @@ def _simu_transform_Gaussian(simu_dim, size, transform, truncate, mode, channels
     if not os.path.exists(data_path):
         length_whole = simu_dim * channels
         if mode == 'train':
-            # mean = np.random.uniform(-2, 2, size=length_whole)
-            # # Random semi-definite matrix. Let covariance matrix to be positive-semidefinite
-            # cov = np.random.uniform(-1, 1, size=length_whole ** 2).reshape(length_whole, length_whole)
-            # cov = np.dot(cov, cov.T)
-            # cov = cov + cov.T
-            # var = np.diag(1 / np.sqrt(np.diag(cov)))
-            # cor = np.matmul(var, cov)
-            # cor = np.matmul(cor, var)
-
-            #
             sigma = 1.0
-            alpha = 1.0
+            alpha = 0.1
             mean = np.ones(length_whole) * 1.5
             # cov(si, sj) = \sigma^2 * exp(-||s1 - s2|| / \alpha)
             cor = sigma**2 * cov_function(length_whole=length_whole, alpha=alpha)

@@ -18,9 +18,20 @@ from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import io
 import torch
 import os
+
+def acf_visulization(ori_data, generated_data, save_name, epoch, args):
+    data = {'Real': ori_data[1,0,:],
+            'Generated': generated_data[1,0,:]}
+    df = pd.DataFrame(data)
+    fig = plt.figure()
+    for i in range(df.shape[1]):
+        pd.plotting.autocorrelation_plot(df.iloc[:, i], label = df.columns[i])
+    plt.savefig(os.path.join(args.path_helper['log_path_img_pca'], f'{save_name}_epoch_{epoch + 1}_acfplot.png'),
+                format="png")
 
 def visualization (ori_data, generated_data, analysis, save_name, epoch, args):
     """Using PCA or tSNE for generated and original data visualization.
