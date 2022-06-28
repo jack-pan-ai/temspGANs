@@ -11,6 +11,6 @@ could be estimated by Maximum Likelihood Estimation (MLE)
 ## TODO
 
   - [x] ~~ACF module on 1-D simulation;~~
-  - [x] ~~$\hat\sigma_{mle}$ is added;~~
+  - [x] ~~ $\hat{\sigma}_{mle}$ is added; ~~
   - [ ] Multivariate time series simulation
   - [ ] 2-D simulation. $S \in \mathcal{R}$ -> $S \in \mathcal{R}^2$
