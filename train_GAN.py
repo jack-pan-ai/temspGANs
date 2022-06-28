@@ -55,11 +55,11 @@ def main_worker(gpu, args):
     # [batch_size, channles, seq-len]
     train_set = MultiNormaldataset(size=10000,  mode='train',
                                        channels = args.simu_channels,  simu_dim=args.simu_dim,
-                                       transform=args.transform, truncate=args.truncate)
+                                       transform=args.transform, truncate=args.truncate, args=args)
     train_loader = data.DataLoader(train_set, batch_size=args.batch_size, num_workers=args.num_workers, shuffle=True)
     test_set = MultiNormaldataset(size=args.eval_num, mode='test',
                                       channels = args.simu_channels, transform=args.transform,
-                                      truncate=args.truncate, simu_dim=args.simu_dim)
+                                      truncate=args.truncate, simu_dim=args.simu_dim, args=args)
     # test_loader = data.DataLoader(test_set, batch_size=args.batch_size, num_workers=args.num_workers, shuffle=True)
     print('------------------------------------------------------------')
     print('How many iterations in a training epoch: ', len(train_loader))
@@ -101,7 +101,7 @@ def main_worker(gpu, args):
 
     # global setting for later training process
     start_epoch = 0
-    fixed_z = torch.cuda.FloatTensor(np.random.normal(0, 1, (args.eval_num, args.latent_dim)))
+    fixed_z = torch.cuda.FloatTensor(np.random.normal(0, 1, (args.eval_num*10, args.latent_dim)))
     dis_best, p_dis_best, cor_dis_best, moment_dis_best = 99, 99, 99, 99
 
     #-------------------------------------------------------------------#
@@ -166,7 +166,7 @@ def main_worker(gpu, args):
             wandb.log({'Generated sampless': img_visu_gline})
 
             # sigma estimation
-            sigma_true = anal_solution(train_set[:args.eval_num].squeeze(1), train_set.mean)
+            sigma_true = anal_solution(train_set[:args.eval_num*10].squeeze(1), train_set.mean)
             sigma_gen = anal_solution(sample_imgs.squeeze(1), train_set.mean)
             wandb.log({'Generated sigma': sigma_gen,
                        'True sigma': sigma_true})

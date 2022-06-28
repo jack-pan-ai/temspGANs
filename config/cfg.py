@@ -99,6 +99,10 @@ def parse_args():
                         help='The dimension of simulated Gaussian Random Fields')
     parser.add_argument('--simu_channels', type=int, default=3,
                         help='The channels of simulated Gaussian Random Fields')
+    parser.add_argument('--alpha', type=float, default=5,
+                        help='The alpha in the exponential setting in GRF')
+    parser.add_argument('--sigma', type=float, default=1.0,
+                        help='The sigma in the exponential setting in GRF')
 
     opt = parser.parse_args()
     return opt

@@ -17,14 +17,16 @@ def anal_solution(X, mu):
     # X: np.ndarray
     dims = X.shape[1]
     cor_base = cov_function(dims)
+    cor_base_inv = np.linalg.inv(cor_base)
     # Analytical solution can be found and it is convex optimzation if the alpha is known in the exponential formula
-    # 1/n \sum_{i=1}^{n} (X-mu) \Sigma (X-mu)^T
-    D_mean = np.mean(np.matmul(np.matmul(X - mu, np.linalg.inv(cor_base)), (X - mu).T))
-    a = np.linalg.det(cor_base)
-    sigma_ested = (np.sqrt(4*a*D_mean + 1) - 1)/(2*a)
+    X_decentralized = X - mu
+    sum_sigma = 0
+    for i in range(X.shape[0]):
+        sum_sigma += X_decentralized[i:(i+1), :] @ cor_base_inv @ X_decentralized[i:(i+1), :].T
+    sigma_ested = sum_sigma/(X.shape[0] * X.shape[1])
     return sigma_ested
 
-def _simu_transform_Gaussian(simu_dim, size, transform, truncate, mode, channels=1):
+def _simu_transform_Gaussian(simu_dim, size, transform, truncate, mode, channels=1, args=None):
 
     data_path = './MultiNormalDataset/' + mode + \
                 '/data' + ('_transform' if transform else '') + \
@@ -34,9 +36,9 @@ def _simu_transform_Gaussian(simu_dim, size, transform, truncate, mode, channels
     if not os.path.exists(data_path):
         length_whole = simu_dim * channels
         if mode == 'train':
-            sigma = 1.0
-            alpha = 0.1
-            mean = np.ones(length_whole) * 1.5
+            sigma = args.sigma
+            alpha = args.alpha
+            mean = np.ones(length_whole)
             # cov(si, sj) = \sigma^2 * exp(-||s1 - s2|| / \alpha)
             cor = sigma**2 * cov_function(length_whole=length_whole, alpha=alpha)
         else:
@@ -77,11 +79,11 @@ def _simu_transform_Gaussian(simu_dim, size, transform, truncate, mode, channels
 
 
 class MultiNormaldataset(Dataset):
-    def __init__(self, size, mode, channels=None, simu_dim=None, transform=False, truncate=False):
+    def __init__(self, size, mode, channels=None, simu_dim=None, transform=False, truncate=False, args=None):
         assert mode == 'train' or mode == 'test', 'Please input the right mode: train or test.'
         if not os.path.exists('./MultiNormalDataset/' + mode):
             os.makedirs('MultiNormalDataset/' + mode)
-        self.x, self.mean, self.cor = _simu_transform_Gaussian(simu_dim, size, transform, truncate, mode, channels)
+        self.x, self.mean, self.cor = _simu_transform_Gaussian(simu_dim, size, transform, truncate, mode, channels, args)
 
     def __len__(self):
         return self.x.shape[0]
