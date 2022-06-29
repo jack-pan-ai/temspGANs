@@ -13,5 +13,5 @@ could be estimated by Maximum Likelihood Estimation (MLE)
   - [x] ~~ACF module on 1-D simulation~~
   - [x] ~~$\hat{\sigma}_{mle}$ is added~~
   - [ ] Multivariate time series simulation
-  - [ ] Autocorrelation visualization using functional boxplot
+  - [ ] Autocorrelation evaluation monitoring using functional boxplot
   - [ ] 2-D simulation. $S \in \mathcal{R}$ -> $S \in \mathcal{R}^2$
