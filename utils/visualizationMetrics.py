@@ -126,20 +126,44 @@ def visualization (ori_data, generated_data, analysis, save_name, epoch, args):
     plt.savefig(os.path.join(args.path_helper['log_path_img_pca'],f'{save_name}_epoch_{epoch+1}.png'), format="png")
 
     # line plot
-    fig = plt.figure()
-    for i in range(args.num_lines):
-        plt.plot(ori_data[i, 0, :])
-    plt.xlabel('Random Fields')
-    plt.ylabel('Values')
-    plt.title('Real Samples')
-    plt.savefig(os.path.join(args.path_helper['log_path_img_pca'], f'{save_name}_epoch_{epoch + 1}_rline.png'), format="png")
+    ## generated_data : [batch_size, channels, simu_dim]
+    if channles ==1:
+        fig = plt.figure()
+        for i in range(args.num_lines):
+            plt.plot(ori_data[i, :, :], color='orangered')
+        plt.xlabel('Random Fields')
+        plt.ylabel('Values')
+        plt.title('Real Samples')
+        plt.savefig(os.path.join(args.path_helper['log_path_img_pca'], f'{save_name}_epoch_{epoch + 1}_realline.png'), format="png")
+        fig = plt.figure()
+        for i in range(args.num_lines):
+            plt.plot(generated_data[i, 0, :], color='lime')
+        plt.xlabel('Random Fields')
+        plt.ylabel('Values')
+        plt.title('Generated Samples')
+        plt.savefig(os.path.join(args.path_helper['log_path_img_pca'], f'{save_name}_epoch_{epoch + 1}_generatedline.png'),
+                    format="png")
+    else:
+        # real
+        fig = plt.figure()
+        plt.imshow(ori_data[np.random.randint(no), :, :], cmap='hot')
+        plt.set_cmap('PiYG')
+        plt.colorbar()
+        plt.xlabel('X axis')
+        plt.ylabel('Y axis')
+        plt.title('Heatmap for real 2D GRF')
+        plt.savefig(os.path.join(args.path_helper['log_path_img_pca'], f'{save_name}_epoch_{epoch + 1}_realheatmap.png'),
+                    format="png")
 
-    fig = plt.figure()
-    for i in range(args.num_lines):
-        plt.plot(generated_data[i, 0, :])
-    plt.xlabel('Random Fields')
-    plt.ylabel('Values')
-    plt.title('Generated Samples')
-    plt.savefig(os.path.join(args.path_helper['log_path_img_pca'], f'{save_name}_epoch_{epoch + 1}_gline.png'),
-                format="png")
+        # generated
+        fig = plt.figure()
+        plt.imshow(ori_data[np.random.randint(no), :, :], cmap='hot')
+        plt.set_cmap('PiYG')
+        plt.colorbar()
+        plt.xlabel('X axis')
+        plt.ylabel('Y axis')
+        plt.title('Heatmap for generated 2D GRF')
+        plt.savefig(os.path.join(args.path_helper['log_path_img_pca'], f'{save_name}_epoch_{epoch + 1}_generatedheatmap.png'),
+                    format="png")
+
 #    plt.show()

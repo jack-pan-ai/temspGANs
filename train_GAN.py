@@ -156,29 +156,38 @@ def main_worker(gpu, args):
             wandb.log({'PCA Visualization': img_visu_pca})
 
             # add the GRF plot (visualization process included in the previous function: visualization)
+            if args.simu_channels == 1:
+                name_sample_visualization = 'line'
+            else:
+                name_sample_visualization = 'heatmap'
             visu_rline = plt.imread(
-                os.path.join(args.path_helper['log_path_img_pca'], f'{args.exp_name}_epoch_{epoch + 1}_rline.png'))
+                os.path.join(args.path_helper['log_path_img_pca'],
+                             f'{args.exp_name}_epoch_{epoch + 1}_real' + name_sample_visualization +'.png'))
             img_visu_rline = wandb.Image(visu_rline, caption="Epoch: " + str(epoch))
-            wandb.log({'Real sampless': img_visu_rline})
+            wandb.log({'Real samples': img_visu_rline})
             visu_gline = plt.imread(
-                os.path.join(args.path_helper['log_path_img_pca'], f'{args.exp_name}_epoch_{epoch + 1}_gline.png'))
+                os.path.join(args.path_helper['log_path_img_pca'],
+                             f'{args.exp_name}_epoch_{epoch + 1}_generated' + name_sample_visualization +'.png'))
             img_visu_gline = wandb.Image(visu_gline, caption="Epoch: " + str(epoch))
-            wandb.log({'Generated sampless': img_visu_gline})
+            wandb.log({'Generated samples': img_visu_gline})
 
             # sigma estimation
-            sigma_true = anal_solution(train_set[:args.eval_num*10].squeeze(1), train_set.mean)
-            sigma_gen = anal_solution(sample_imgs.squeeze(1), train_set.mean)
+            sigma_true = anal_solution(train_set[:args.eval_num*10].reshape(args.eval_num*10,-1), train_set.mean, channels=args.simu_channels)
+            sigma_gen = anal_solution(sample_imgs.reshape(len(sample_imgs), -1), train_set.mean, channels=args.simu_channels)
             wandb.log({'Generated sigma': sigma_gen,
                        'True sigma': sigma_true})
 
             # add acf for the comparsion of generated data and real data
-            acf_visulization(ori_data=train_set[:args.eval_num],
-                          generated_data=sample_imgs[:args.eval_num],
-                          save_name=args.exp_name, epoch=epoch, args=args)
-            visu_acf = plt.imread(
-                os.path.join(args.path_helper['log_path_img_pca'], f'{args.exp_name}_epoch_{epoch + 1}_acfplot.png'))
-            img_visu_acf = wandb.Image(visu_acf, caption="Epoch: " + str(epoch))
-            wandb.log({'Autocorrelation function': img_visu_acf})
+            if channels==1:
+                acf_visulization(ori_data=train_set[:args.eval_num],
+                              generated_data=sample_imgs[:args.eval_num],
+                              save_name=args.exp_name, epoch=epoch, args=args)
+                visu_acf = plt.imread(
+                    os.path.join(args.path_helper['log_path_img_pca'], f'{args.exp_name}_epoch_{epoch + 1}_acfplot.png'))
+                img_visu_acf = wandb.Image(visu_acf, caption="Epoch: " + str(epoch))
+                wandb.log({'Autocorrelation function': img_visu_acf})
+            else:
+                pass
 
             save_checkpoint({
                 'epoch': epoch + 1,

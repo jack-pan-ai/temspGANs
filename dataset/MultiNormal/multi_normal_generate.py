@@ -4,19 +4,32 @@ import pickle
 import os
 from torch.utils.data import Dataset
 
-def cov_function(length_whole, alpha=0.1):
+def cov_function(length_whole, alpha=0.1, channels=None):
     # used to create corvariance matrix control by 2 parameters
-    cor = np.ones([length_whole, length_whole])
-    for i in range(length_whole):
-        for j in range(length_whole):
-            cor[i, j] = cor[i, j] * np.exp(- np.abs(i - j) / alpha)
+    if channels==1:
+        cor = np.ones([length_whole, length_whole])
+        for i in range(length_whole):
+            for j in range(length_whole):
+                cor[i, j] = cor[i, j] * np.exp(- np.abs(i - j) / alpha)
+    else:
+        cor = np.ones([length_whole, length_whole])
+        for i in range(length_whole):
+            for j in range(length_whole):
+                # (x, y)
+                x_i = i // channels
+                y_i = i % channels
+                x_j = j // channels
+                y_j = j % channels
+                # L-2 distance
+                distances = np.sqrt((x_i - x_j) ** 2 + (y_i - y_j)**2)
+                cor[i, j] = cor[i, j] * np.exp(- distances / alpha)
     return cor
 
-def anal_solution(X, mu):
+def anal_solution(X, mu, channels=None):
     # the input X shape: [batch_size, dimensions]
     # X: np.ndarray
     dims = X.shape[1]
-    cor_base = cov_function(dims)
+    cor_base = cov_function(dims, channels=channels)
     cor_base_inv = np.linalg.inv(cor_base)
     # Analytical solution can be found and it is convex optimzation if the alpha is known in the exponential formula
     X_decentralized = X - mu
@@ -38,15 +51,15 @@ def _simu_transform_Gaussian(simu_dim, size, transform, truncate, mode, channels
         if mode == 'train':
             sigma = args.sigma
             alpha = args.alpha
-            mean = np.ones(length_whole)
+            mean = np.ones(length_whole) * 1.5
             # cov(si, sj) = \sigma^2 * exp(-||s1 - s2|| / \alpha)
-            cor = sigma**2 * cov_function(length_whole=length_whole, alpha=alpha)
+            cor = sigma**2 * cov_function(length_whole=length_whole, alpha=alpha, channels=channels)
         else:
             _data_path = data_path.replace('test', 'train')
             with open(_data_path, 'rb') as f:
                 data_GRF_train = pickle.load(f)
                 mean, cor = data_GRF_train['mean'], data_GRF_train['cor']
-        x = multivariate_normal(mean=mean, cov=cor, size=size)
+        x = multivariate_normal(mean=mean, cov=cor, size=size) # [batch_size, whole_length]
 
         if transform:
             # non-linear transformation
@@ -56,7 +69,7 @@ def _simu_transform_Gaussian(simu_dim, size, transform, truncate, mode, channels
             c = np.max(np.abs(x)) / 1.2
             x[x >= c] = c
         # reshape the dataset
-        x = x.reshape(-1, channels, simu_dim)
+        x = x.reshape([-1, channels, simu_dim])
 
         data_GRF = {'x': x, 'mean': mean, 'cor': cor}
 
