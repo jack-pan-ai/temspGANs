@@ -6,7 +6,7 @@ Simulation on the Gaussian Random Field (GRF) to verify the generality of transf
 ## Simulation experiment 
 $\mathbf{X}(s) \sim \mathcal{N}(\boldsymbol{\mu}, \Sigma(\theta))$, 
 where each individuals in the corvariance matrix, $\Sigma(\theta)_{ij} = \sigma^2 exp(-\frac{||s1 - s2||}{\alpha})$,
-could be estimated by Maximum Likelihood Estimation (MLE)
+could be estimated by Maximum Likelihood Estimation (MLE). Note $S$ could be 1D or 2D.
 
 ## TODO
 
