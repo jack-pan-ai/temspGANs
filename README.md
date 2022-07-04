@@ -10,8 +10,8 @@ could be estimated by Maximum Likelihood Estimation (MLE)
 
 ## TODO
 
-  - [x] ~~ACF module on 1-D simulation~~
-  - [x] ~~$\hat{\sigma}_{mle}$ is added~~
+  - [x] ACF module on 1-D simulation
+  - [x] $\hat{\sigma}_{mle}$ is added
   - [ ] Multivariate time series simulation
   - [ ] Autocorrelation evaluation monitoring using functional boxplot
-  - [ ] 2-D simulation. $S \in \mathcal{R}$ -> $S \in \mathcal{R}^2$
+  - [x] 2-D simulation. $S \in \mathcal{R}$ -> $S \in \mathcal{R}^2$
