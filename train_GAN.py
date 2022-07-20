@@ -14,7 +14,6 @@ import torch.utils.data.distributed
 from torch.utils import data
 import os
 import numpy as np
-import torch.nn as nn
 from torch.utils.tensorboard import SummaryWriter
 import random
 import matplotlib.pyplot as plt
@@ -171,11 +170,11 @@ def main_worker(gpu, args):
             img_visu_gline = wandb.Image(visu_gline, caption="Epoch: " + str(epoch))
             wandb.log({'Generated samples': img_visu_gline})
 
-            # sigma estimation
-            sigma_true = anal_solution(train_set[:args.eval_num*10].reshape(args.eval_num*10,-1), train_set.mean, channels=args.simu_channels)
-            sigma_gen = anal_solution(sample_imgs.reshape(len(sample_imgs), -1), train_set.mean, channels=args.simu_channels)
-            wandb.log({'Generated sigma': sigma_gen,
-                       'True sigma': sigma_true})
+            ## sigma estimation
+            # sigma_true = anal_solution(train_set[:args.eval_num*10].reshape(args.eval_num*10,-1), train_set.mean, channels=args.simu_channels)
+            # sigma_gen = anal_solution(sample_imgs.reshape(len(sample_imgs), -1), train_set.mean, channels=args.simu_channels)
+            # wandb.log({'Generated sigma': sigma_gen,
+            #            'True sigma': sigma_true})
 
             # add acf for the comparsion of generated data and real data
             if channels==1:

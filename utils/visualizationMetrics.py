@@ -157,7 +157,7 @@ def visualization (ori_data, generated_data, analysis, save_name, epoch, args):
 
         # generated
         fig = plt.figure()
-        plt.imshow(ori_data[np.random.randint(no), :, :], cmap='hot')
+        plt.imshow(generated_data[np.random.randint(no), :, :], cmap='hot')
         plt.set_cmap('PiYG')
         plt.colorbar()
         plt.xlabel('X axis')
