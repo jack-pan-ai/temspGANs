@@ -33,7 +33,7 @@ def acf_visulization(ori_data, generated_data, save_name, epoch, args):
     plt.savefig(os.path.join(args.path_helper['log_path_img_pca'], f'{save_name}_epoch_{epoch + 1}_acfplot.png'),
                 format="png")
 
-def visualization (ori_data, generated_data, analysis, save_name, epoch, args):
+def visualization (ori_data, generated_data, analysis, save_name, epoch, args, mean, cov):
     """Using PCA or tSNE for generated and original data visualization.
 
     Args:
@@ -125,7 +125,36 @@ def visualization (ori_data, generated_data, analysis, save_name, epoch, args):
 
     plt.savefig(os.path.join(args.path_helper['log_path_img_pca'],f'{save_name}_epoch_{epoch+1}.png'), format="png")
 
-    # line plot
+    # mean difference
+    gen_data_mean = np.sum(generated_data, 0)
+    gen_data_diff = gen_data_mean - mean.reshape(gen_data_mean.shape)
+    fig = plt.figure()
+    plt.imshow(gen_data_diff, cmap='hot')
+    plt.set_cmap('PiYG')
+    plt.colorbar()
+    plt.xlabel('X axis')
+    plt.ylabel('Y axis')
+    plt.title('Difference of true mean and estimate mean from generated samples')
+    plt.savefig(os.path.join(args.path_helper['log_path_img_pca'], f'{save_name}_epoch_{epoch + 1}_diffmean.png'),
+                format="png")
+    
+    # marginal distribution
+    fig = plt.figure()
+    plt.hist(generated_data[:,0,0], 50 , density=True, facecolor='g', alpha=0.75)
+    x = np.linspace(-3, 3, 50)
+    y = np.exp(-(x) ** 2 / 2) / np.sqrt(2 * np.pi)
+    plt.plot(x, y, "r", linewidth=2)
+    plt.xlabel('Values')
+    plt.ylabel('Probability')
+    plt.title('Marginal distribution at (0, 0)')
+    plt.savefig(os.path.join(args.path_helper['log_path_img_pca'], f'{save_name}_epoch_{epoch + 1}_marginal.png'),
+                format="png")
+
+    # semigram
+    
+    
+
+    # 1D line or 2D grid plot
     ## generated_data : [batch_size, channels, simu_dim]
     if channles ==1:
         fig = plt.figure()

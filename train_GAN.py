@@ -100,8 +100,7 @@ def main_worker(gpu, args):
 
     # global setting for later training process
     start_epoch = 0
-    fixed_z = torch.cuda.FloatTensor(np.random.normal(0, 1, (args.eval_num*10, args.latent_dim)))
-    dis_best, p_dis_best, cor_dis_best, moment_dis_best = 99, 99, 99, 99
+    fixed_z = torch.cuda.FloatTensor(np.random.normal(0, 1, (args.eval_num, args.latent_dim)))
 
     #-------------------------------------------------------------------#
     #------------------------ Writer Configuration  --------------------#
@@ -148,7 +147,7 @@ def main_worker(gpu, args):
             # visualization for generated data & wandb for generated data
             visualization(ori_data=train_set[:args.eval_num],
                           generated_data=sample_imgs[:args.eval_num], analysis='pca',
-                          save_name=args.exp_name, epoch=epoch, args=args)
+                          save_name=args.exp_name, epoch=epoch, args=args, mean=train_set.mean, cov=train_set.cov)
             visu_pca = plt.imread(
                 os.path.join(args.path_helper['log_path_img_pca'], f'{args.exp_name}_epoch_{epoch + 1}.png'))
             img_visu_pca = wandb.Image(visu_pca, caption="Epoch: " + str(epoch))
@@ -176,17 +175,17 @@ def main_worker(gpu, args):
             # wandb.log({'Generated sigma': sigma_gen,
             #            'True sigma': sigma_true})
 
-            # add acf for the comparsion of generated data and real data
-            if channels==1:
-                acf_visulization(ori_data=train_set[:args.eval_num],
-                              generated_data=sample_imgs[:args.eval_num],
-                              save_name=args.exp_name, epoch=epoch, args=args)
-                visu_acf = plt.imread(
-                    os.path.join(args.path_helper['log_path_img_pca'], f'{args.exp_name}_epoch_{epoch + 1}_acfplot.png'))
-                img_visu_acf = wandb.Image(visu_acf, caption="Epoch: " + str(epoch))
-                wandb.log({'Autocorrelation function': img_visu_acf})
-            else:
-                pass
+            # # add acf for the comparsion of generated data and real data
+            # if channels==1:
+            #     acf_visulization(ori_data=train_set[:args.eval_num],
+            #                   generated_data=sample_imgs[:args.eval_num],
+            #                   save_name=args.exp_name, epoch=epoch, args=args)
+            #     visu_acf = plt.imread(
+            #         os.path.join(args.path_helper['log_path_img_pca'], f'{args.exp_name}_epoch_{epoch + 1}_acfplot.png'))
+            #     img_visu_acf = wandb.Image(visu_acf, caption="Epoch: " + str(epoch))
+            #     wandb.log({'Autocorrelation function': img_visu_acf})
+            # else:
+            #     pass
 
             save_checkpoint({
                 'epoch': epoch + 1,
