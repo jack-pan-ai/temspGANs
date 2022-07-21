@@ -13,15 +13,17 @@ Note: Use PCA or tSNE for generated and original data visualization
 Revised by Qilong Pan: 2022 4-7
 """
 
+from dataset.MultiNormal.multi_normal_generate import matern_cov
+
 # Necessary packages
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import io
 import torch
 import os
+import skgstat as skg
 
 def acf_visulization(ori_data, generated_data, save_name, epoch, args):
     data = {'Real': ori_data[1,0,:],
@@ -135,8 +137,7 @@ def visualization (ori_data, generated_data, analysis, save_name, epoch, args, m
     plt.xlabel('X axis')
     plt.ylabel('Y axis')
     plt.title('Difference of true mean and estimate mean from generated samples')
-    plt.savefig(os.path.join(args.path_helper['log_path_img_pca'], f'{save_name}_epoch_{epoch + 1}_diffmean.png'),
-                format="png")
+    plt.savefig(os.path.join(args.path_helper['log_path_img_pca'], f'{save_name}_epoch_{epoch + 1}_diffmean.png'), format="png")
     
     # marginal distribution
     fig = plt.figure()
@@ -151,8 +152,32 @@ def visualization (ori_data, generated_data, analysis, save_name, epoch, args, m
                 format="png")
 
     # semigram
-    
-    
+    position = np.zeros([seq_len * seq_len, 2])
+    for i in range(seq_len):
+        for j in range(seq_len):
+            position[i * seq_len + j, 0] = i / seq_len
+            position[i * seq_len + j, 1] = j / seq_len
+    experimental_mean = 0
+    estimated_var_mean = 0
+    for i in range(no):
+        values = generated_data[i].flatten()
+        v = skg.Variogram(position, values, model='matern', bin_func='even', maxlag=0.7, n_lags=seq_len)
+        experimental_mean += v.experimental
+        estimated_var_mean += v.fitted_model(np.linspace(0, v.maxlag, 100))
+
+    experimental_mean = experimental_mean/no
+    estimated_var_mean = estimated_var_mean/no
+    x = np.linspace(0, v.maxlag, 100)
+    fig = plt.figure()
+    plt.plot(v.bins, experimental_mean, '.b', label='Mean of Semivariogram')
+    plt.plot(x, estimated_var_mean, '-g', label='Mean of Fitted Matern')
+    plt.plot(x, args.tau - matern_cov(x, args.nu, args.rho), label='True Matern')
+    plt.title('Estimated and true semivariogram')
+    plt.ylabel('semivariogram (matheron)')
+    plt.xlabel('h')
+    plt.legend()
+    plt.savefig(os.path.join(args.path_helper['log_path_img_pca'], f'{save_name}_epoch_{epoch + 1}_variogram.png'),
+                format="png")
 
     # 1D line or 2D grid plot
     ## generated_data : [batch_size, channels, simu_dim]

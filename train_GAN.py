@@ -148,10 +148,26 @@ def main_worker(gpu, args):
             visualization(ori_data=train_set[:args.eval_num],
                           generated_data=sample_imgs[:args.eval_num], analysis='pca',
                           save_name=args.exp_name, epoch=epoch, args=args, mean=train_set.mean, cov=train_set.cov)
+            # PCA
             visu_pca = plt.imread(
                 os.path.join(args.path_helper['log_path_img_pca'], f'{args.exp_name}_epoch_{epoch + 1}.png'))
             img_visu_pca = wandb.Image(visu_pca, caption="Epoch: " + str(epoch))
             wandb.log({'PCA Visualization': img_visu_pca})
+            # variogram
+            visu_variogram = plt.imread(
+                os.path.join(args.path_helper['log_path_img_pca'], f'{args.exp_name}_epoch_{epoch + 1}_variogram.png'))
+            img_visu_variogram = wandb.Image(visu_variogram, caption="Epoch: " + str(epoch))
+            wandb.log({'Variogram': img_visu_variogram})
+            # differenece mean
+            visu_mean = plt.imread(
+                os.path.join(args.path_helper['log_path_img_pca'], f'{args.exp_name}_epoch_{epoch + 1}_diffmean.png'))
+            img_visu_mean = wandb.Image(visu_mean, caption="Epoch: " + str(epoch))
+            wandb.log({'Difference Mean': img_visu_mean})
+            # marginal distribution
+            visu_marginal = plt.imread(
+                os.path.join(args.path_helper['log_path_img_pca'], f'{args.exp_name}_epoch_{epoch + 1}_marginal.png'))
+            img_visu_marginal = wandb.Image(visu_marginal, caption="Epoch: " + str(epoch))
+            wandb.log({'Marginal': img_visu_marginal})
 
             # add the GRF plot (visualization process included in the previous function: visualization)
             if args.simu_channels == 1:

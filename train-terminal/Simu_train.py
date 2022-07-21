@@ -20,4 +20,4 @@ os.system(f"CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python ../train_GAN.py \
 --nu 0.5 \
 --rho 1.0 \
 --print_freq 50 \
---exp_name GRF-2D-v1.0")
+--exp_name Matern0.0")

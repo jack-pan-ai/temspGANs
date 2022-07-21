@@ -36,7 +36,7 @@ def cov_function(length_whole, tau, nu, rho,channels=None):
         for i in range(length_whole):
             for j in range(length_whole):
                 distance = np.abs(i-j)
-                cov[i, j] = cov[i, j] * matern_cov(distance=distance, nu=nu, rho=rho)
+                cov[i, j] = tau**2 * matern_cov(distance=distance, nu=nu, rho=rho)
     else:
         cov = np.ones([length_whole, length_whole])
         for i in range(length_whole):
@@ -67,7 +67,7 @@ def _simu_transform_Gaussian(simu_dim, size, transform, truncate, mode, channels
             tau = args.tau
             nu = args.nu
             rho = args.rho
-            mean = np.ones(length_whole) * 1.5
+            mean = np.zeros(length_whole)
             # cov(si, sj) = \sigma^2 * exp(-||s1 - s2|| / \alpha)
             cov = cov_function(length_whole=length_whole, tau=tau, nu=nu, rho=rho, channels=channels)
         else:
